@@ -1,43 +1,102 @@
 import React, { Component } from 'react';
 import './App.css';
+import firebase from './firebase';
 
 class App extends Component {
-  constructor(props){
-    super(props)
+
+  constructor() {
+    super();
     this.state = {
-      file:null,
-      image:null,
-      iname:''
+      currentItem: '',
+      username: '',
+      items:[]
     }
-    this.handleChangeImage=this.handleChangeImage.bind(this)
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-   handleChangeImage(event) {
-    if (event.target.files && event.target.files[0]) {
-      let reader = new FileReader();
-      reader.onload = (e) => {
-          this.setState({image: e.target.result});
-      };
-      reader.readAsDataURL(event.target.files[0]);
+  
+  
+  handleSubmit(e) {
+    e.preventDefault();
+    const itemsRef = firebase.database().ref('items');
+    const item = {
+      title: this.state.currentItem,
+      user: this.state.username
     }
-    console.log(event.target.files[0])
-    this.setState({iname: event.target.files[0].name.slice(0,-4)})
+    itemsRef.push(item);
+    this.setState({
+      currentItem: '',
+      username: ''
+    });
+  }
+
+
+  handleChange= (e)=>{
+    this.setState({
+      [e.target.name]: e.target.value
+    });
+  }
+
+  removeItem(itemId) {
+    const itemRef = firebase.database().ref(`/items/${itemId}`);
+    itemRef.remove();
+  }
+
+  componentDidMount() {
+    const itemsRef = firebase.database().ref('items');
+    itemsRef.on('value', (snapshot) => {
+      let items = snapshot.val();
+      console.log(snapshot.val());
+      let newState = [];
+      for (let item in items) {
+        newState.push({
+          id: item,
+          title: items[item].title,
+          user: items[item].user
+        });
+      }
+      this.setState({
+        items: newState
+      });
+    });
   }
 
   render() {
     return (
-      <div className="App">
-        <input type='file' onChange={this.handleChangeImage} />
-        <br />
-        <br />
-        <div className='cards'>
-          <img src={this.state.image} alt={this.state.iname}/>
-          <h1>{this.state.iname}</h1>  
+      <div className='app'>
+        <header>
+            <div className='wrapper'>
+              <h1>Pokecard</h1>
+              
+            </div>
+        </header>
+        <div className='container'>
+          <section className='add-item'>
+              <form onSubmit={this.handleSubmit}>
+                <input type="text" name="username" placeholder="trainer name?" onChange={this.handleChange} value={this.state.username}/>
+                <input type="text" name="currentItem" placeholder="Pokemon?" onChange={this.handleChange} value={this.state.currentItem}/>
+                <button>Add Card</button>
+              </form>
+          </section>
+          <section className='display-item'>
+            <div className='wrapper'>
+              <ul>
+                {this.state.items.map((item) => {
+                  return (
+                    <li key={item.id}>
+                      <h3>{item.title}</h3>
+                      <p>trained by: {item.user}</p>
+                      <button onClick={() => this.removeItem(item.id)}>Remove Item</button>
+                    </li>
+                    )
+                })}
+              </ul>
+            </div>
+          </section>
         </div>
-        
       </div>
     );
   }
 }
-
 export default App;
