@@ -43,8 +43,13 @@ class App extends Component {
     itemRef.remove();
   }
 
+  changePicture(e) {
+    console.log(e.target.files[0]);
+  }
+
   componentDidMount() {
     const itemsRef = firebase.database().ref('items');
+    const storageRef= firebase.storage().ref('images');
     itemsRef.on('value', (snapshot) => {
       let items = snapshot.val();
       console.log(snapshot.val());
@@ -76,6 +81,7 @@ class App extends Component {
               <form onSubmit={this.handleSubmit}>
                 <input type="text" name="username" placeholder="trainer name?" onChange={this.handleChange} value={this.state.username}/>
                 <input type="text" name="currentItem" placeholder="Pokemon?" onChange={this.handleChange} value={this.state.currentItem}/>
+                <input type="file" onChange= {this.changePicture}/>
                 <button>Add Card</button>
               </form>
           </section>
