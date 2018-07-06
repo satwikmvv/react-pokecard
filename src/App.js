@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import firebase from './firebase';
+import DisplayCards from './components/DisplayCards'
 
 class App extends Component {
 
@@ -9,10 +10,12 @@ class App extends Component {
     this.state = {
       currentItem: '',
       username: '',
+      imageid:'',
       items:[]
     }
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.removeItem=this.removeItem.bind(this)
   }
 
   
@@ -24,6 +27,7 @@ class App extends Component {
       title: this.state.currentItem,
       user: this.state.username
     }
+    console.log(e);
     itemsRef.push(item);
     this.setState({
       currentItem: '',
@@ -44,15 +48,20 @@ class App extends Component {
   }
 
   changePicture(e) {
-    console.log(e.target.files[0]);
+    var file= e.target.files[0];
+    const storageRef= firebase.storage().ref(`images/${file.lastModified}`);
+    console.log(file);
+    storageRef.put(file).then(function(snapshot) {
+      console.log('Uploaded a blob or file!');
+    })
+    
   }
 
   componentDidMount() {
     const itemsRef = firebase.database().ref('items');
-    const storageRef= firebase.storage().ref('images');
+    
     itemsRef.on('value', (snapshot) => {
       let items = snapshot.val();
-      console.log(snapshot.val());
       let newState = [];
       for (let item in items) {
         newState.push({
@@ -86,19 +95,7 @@ class App extends Component {
               </form>
           </section>
           <section className='display-item'>
-            <div className='wrapper'>
-              <ul>
-                {this.state.items.map((item) => {
-                  return (
-                    <li key={item.id}>
-                      <h3>{item.title}</h3>
-                      <p>trained by: {item.user}</p>
-                      <button onClick={() => this.removeItem(item.id)}>Remove Item</button>
-                    </li>
-                    )
-                })}
-              </ul>
-            </div>
+            <DisplayCards cards={this.state.items} removeItems={this.removeItem} />
           </section>
         </div>
       </div>
