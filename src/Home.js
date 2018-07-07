@@ -1,27 +1,15 @@
 import React, { Component } from 'react';
-import App from './App';
-import Login from './Login'
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
 class Home extends Component {
     render() {
         return (
-            <Router>
-                <div>
-                    <ul>
-                        <li>
-                            <Link to='/login'>Login</Link>
-                        </li>
-                        <li>
-                            <Link to='/'>Form</Link>
-                        </li>
-                    </ul>
-                    
-                    <Route exact path='/' component={App} />
-                    <Route path='/login' component={Login} />
-
-                </div>
-            </Router>
+            <div>
+                <h2><a href='./Login'>Login</a></h2>
+                <br />
+                <br />
+                <br />
+                <h2><a href='./signup'>SignUp</a></h2>
+            </div>
         );
     }
 }

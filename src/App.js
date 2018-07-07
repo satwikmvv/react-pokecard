@@ -5,8 +5,8 @@ import DisplayCards from './components/DisplayCards'
 
 class App extends Component {
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       currentItem: '',
       username: '',
@@ -15,7 +15,8 @@ class App extends Component {
     }
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.removeItem=this.removeItem.bind(this)
+    this.removeItem=this.removeItem.bind(this);
+    this.logOut=this.logOut.bind(this);
   }
 
   
@@ -59,7 +60,7 @@ class App extends Component {
 
   componentDidMount() {
     const itemsRef = firebase.database().ref('items');
-    
+    console.log(this)
     itemsRef.on('value', (snapshot) => {
       let items = snapshot.val();
       let newState = [];
@@ -76,12 +77,28 @@ class App extends Component {
     });
   }
 
+  logOut(e) {
+      const test= this;
+      e.preventDefault();
+    firebase.auth().signOut().then(function() {
+      console.log(test,'Signed OUT!')
+      test.props.history.push({
+        pathname: '/',
+    })
+      // Sign-out successful.
+    }).catch(function(error) {
+      // An error happened.
+      console.log(error)
+    });
+  }
+
   render() {
     return (
       <div className='app'>
         <header>
             <div className='wrapper'>
               <h1>Pokecard</h1>
+              <a href='#' onClick={this.logOut}>Log out</a>
               
             </div>
         </header>
