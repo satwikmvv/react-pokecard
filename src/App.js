@@ -10,7 +10,7 @@ class App extends Component {
     this.state = {
       trainer: '',
       pokemon: '',
-      imageid:'',
+      imageURL:'',
       UID: '',
       items:[]
     }
@@ -18,6 +18,7 @@ class App extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.removeItem=this.removeItem.bind(this);
     this.logOut=this.logOut.bind(this);
+    this.changePicture=this.changePicture.bind(this)
   }
 
   
@@ -27,13 +28,15 @@ class App extends Component {
     const itemsRef = firebase.database().ref(`items/${this.state.UID}`);
     const item = {
       trainer: this.state.trainer,
-      pokemon: this.state.pokemon
+      pokemon: this.state.pokemon,
+      imageURL: this.state.imageURL
     }
     console.log(e);
     itemsRef.push(item);
     this.setState({
       trainer: '',
-      pokemon: ''
+      pokemon: '',
+      imageURL: ''
     });
   }
 
@@ -53,27 +56,50 @@ class App extends Component {
     var file= e.target.files[0];
     const storageRef= firebase.storage().ref(`images/${this.state.UID}/${file.lastModified}`);
     console.log(file);
+    var refthis=this
     storageRef.put(file).then(function(snapshot) {
-      console.log('Uploaded a blob or file!');
+      let rand= snapshot;
+      console.log(rand,'Uploaded a blob or file!');
+      const storagereference=firebase.storage().ref(`images`)
+      storagereference.child(`/${refthis.state.UID}/${file.lastModified}`).getDownloadURL().then((url)=>{
+        console.log(url)
+        refthis.setState({
+          imageURL:url
+        })
+      })
     })
     
   }
 
   componentDidMount() {
-    this.setState({
-      UID: this.props.location.state.uid
-    })
+    if(this.props.location.state != null) {
+      this.setState({
+        UID: this.props.location.state.uid
+      })
+    }
+    else{
+      this.props.history.push({
+        pathname:'/Login'
+      })
+      
+    }
+    
     const itemsRef = firebase.database().ref(`items/${this.state.UID}`);
     itemsRef.on('value', (snapshot) => {
       let uid = this.state.UID
-      let items = snapshot.val()[uid];
+      let items=null;
+      if (snapshot.val()){
+        items = snapshot.val()[uid];
+      }
+      
       // console.log(items[uid])
       let newState = [];
       for (let item in items) {
         newState.push({
           id: item,
           trainer: items[item].trainer,
-          pokemon: items[item].pokemon
+          pokemon: items[item].pokemon,
+          imageURL: items[item].imageURL
         });
       }
       this.setState({
