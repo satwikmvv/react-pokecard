@@ -8,9 +8,10 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentItem: '',
-      username: '',
+      trainer: '',
+      pokemon: '',
       imageid:'',
+      UID: '',
       items:[]
     }
     this.handleChange = this.handleChange.bind(this);
@@ -23,16 +24,16 @@ class App extends Component {
   
   handleSubmit(e) {
     e.preventDefault();
-    const itemsRef = firebase.database().ref('items');
+    const itemsRef = firebase.database().ref(`items/${this.state.UID}`);
     const item = {
-      title: this.state.currentItem,
-      user: this.state.username
+      trainer: this.state.trainer,
+      pokemon: this.state.pokemon
     }
     console.log(e);
     itemsRef.push(item);
     this.setState({
-      currentItem: '',
-      username: ''
+      trainer: '',
+      pokemon: ''
     });
   }
 
@@ -44,13 +45,13 @@ class App extends Component {
   }
 
   removeItem(itemId) {
-    const itemRef = firebase.database().ref(`/items/${itemId}`);
+    const itemRef = firebase.database().ref(`/items/${this.state.UID}/${itemId}`);
     itemRef.remove();
   }
 
   changePicture(e) {
     var file= e.target.files[0];
-    const storageRef= firebase.storage().ref(`images/${file.lastModified}`);
+    const storageRef= firebase.storage().ref(`images/${this.state.UID}/${file.lastModified}`);
     console.log(file);
     storageRef.put(file).then(function(snapshot) {
       console.log('Uploaded a blob or file!');
@@ -59,16 +60,20 @@ class App extends Component {
   }
 
   componentDidMount() {
-    const itemsRef = firebase.database().ref('items');
-    console.log(this)
+    this.setState({
+      UID: this.props.location.state.uid
+    })
+    const itemsRef = firebase.database().ref(`items/${this.state.UID}`);
     itemsRef.on('value', (snapshot) => {
-      let items = snapshot.val();
+      let uid = this.state.UID
+      let items = snapshot.val()[uid];
+      // console.log(items[uid])
       let newState = [];
       for (let item in items) {
         newState.push({
           id: item,
-          title: items[item].title,
-          user: items[item].user
+          trainer: items[item].trainer,
+          pokemon: items[item].pokemon
         });
       }
       this.setState({
@@ -105,8 +110,8 @@ class App extends Component {
         <div className='container'>
           <section className='add-item'>
               <form onSubmit={this.handleSubmit}>
-                <input type="text" name="username" placeholder="trainer name?" onChange={this.handleChange} value={this.state.username}/>
-                <input type="text" name="currentItem" placeholder="Pokemon?" onChange={this.handleChange} value={this.state.currentItem}/>
+                <input type="text" name="trainer" placeholder="trainer name?" onChange={this.handleChange} value={this.state.trainer}/>
+                <input type="text" name="pokemon" placeholder="Pokemon?" onChange={this.handleChange} value={this.state.pokemon}/>
                 <input type="file" onChange= {this.changePicture}/>
                 <button>Add Card</button>
               </form>

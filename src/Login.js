@@ -19,7 +19,7 @@ class Login extends Component {
         e.preventDefault();
         firebase.auth().signInWithEmailAndPassword(this.state.username, this.state.password)
         .then((res)=>{
-            console.log(this.props);
+            // console.log(this.props);
             this.props.history.push({
                 pathname: '/dashboard',
                 state: {

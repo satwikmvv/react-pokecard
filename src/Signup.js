@@ -11,15 +11,19 @@ class SignUp extends Component {
         }
         this.handleUpdate=this.handleUpdate.bind(this)
         this.handleSignUp=this.handleSignUp.bind(this)
+        this.handleReturnLogin=this.handleReturnLogin.bind(this)
     }
 
     handleSignUp(e){
         e.preventDefault()
         // console.log(this.state)
-        firebase.auth().createUserWithEmailAndPassword(this.state.username, this.state.password).catch(function(error) {
+        firebase.auth().createUserWithEmailAndPassword(this.state.username, this.state.password)
+        .then((res)=>{
+            this.props.history.push({
+                pathname: '/Login'
+            })
+        }).catch(function(error) {
             // Handle Errors here.
-            var errorCode = error.code;
-            var errorMessage = error.message;
             console.log(error)
             // ...
           });
@@ -30,11 +34,14 @@ class SignUp extends Component {
           [e.target.name]: e.target.value
         });
         
-      }
-
-    componentDidMount(){
-
     }
+
+    handleReturnLogin(e) {
+        this.props.history.push({
+            pathname: '/Login'
+        })
+    } 
+
 
     render() {
         return (
@@ -45,6 +52,12 @@ class SignUp extends Component {
                     password:<input type='text' name='password' placeholder='Enter Password' onChange={this.handleUpdate} value={this.state.password}/>
                     <button>Signup</button>
                 </form>
+                <br />
+                <br />
+                <form>
+                    
+                </form>
+                <button onClick={this.handleReturnLogin}>Return to Login</button>
             </div>
         );
     }

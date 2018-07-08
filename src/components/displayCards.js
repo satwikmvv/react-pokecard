@@ -12,8 +12,8 @@ class DisplayCards extends Component {
                 {this.props.cards.map((item) => {
                   return (
                     <li key={item.id}>
-                      <h3>{item.title}</h3>
-                      <p>trained by: {item.user}</p>
+                      <h3>{item.trainer}</h3>
+                      <p>trains: {item.pokemon}</p>
                       <button onClick={() => this.props.removeItems(item.id)}>Remove Item</button>
                     </li>
                     )
