@@ -12,6 +12,8 @@ class App extends Component {
       pokemon: '',
       imageURL:'',
       UID: '',
+      file:null,
+      imageID: null,
       items:[]
     }
     this.handleChange = this.handleChange.bind(this);
@@ -26,17 +28,35 @@ class App extends Component {
   handleSubmit(e) {
     e.preventDefault();
     const itemsRef = firebase.database().ref(`items/${this.state.UID}`);
+    
+    const storageRef= firebase.storage().ref(`images/${this.state.UID}/${this.state.imageID}`);
+    var refthis=this
+    var refimageID=this.state.imageID
+    storageRef.put(this.state.file).then(function() {
+      console.log('Uploaded a blob or file!');
+      const storagereference=firebase.storage().ref(`images`)
+      storagereference.child(`/${refthis.state.UID}/${refimageID}`).getDownloadURL().then((url)=>{
+        console.log(url)
+        refthis.setState({
+          imageURL:url
+        })
+      }).catch((error)=>{
+        console.log(error)
+      })
+    })
     const item = {
       trainer: this.state.trainer,
       pokemon: this.state.pokemon,
       imageURL: this.state.imageURL
     }
-    console.log(e);
+    setTimeout(()=>{itemsRef.push(item)},3000)
     itemsRef.push(item);
     this.setState({
       trainer: '',
       pokemon: '',
-      imageURL: ''
+      imageURL: '',
+      file:null,
+      imageID:null
     });
   }
 
@@ -53,22 +73,10 @@ class App extends Component {
   }
 
   changePicture(e) {
-    var file= e.target.files[0];
-    const storageRef= firebase.storage().ref(`images/${this.state.UID}/${file.lastModified}`);
-    console.log(file);
-    var refthis=this
-    storageRef.put(file).then(function(snapshot) {
-      let rand= snapshot;
-      console.log(rand,'Uploaded a blob or file!');
-      const storagereference=firebase.storage().ref(`images`)
-      storagereference.child(`/${refthis.state.UID}/${file.lastModified}`).getDownloadURL().then((url)=>{
-        console.log(url)
-        refthis.setState({
-          imageURL:url
-        })
-      })
+    this.setState ({
+      imageID: e.target.files[0].lastModified,
+      file:e.target.files[0]
     })
-    
   }
 
   componentDidMount() {
@@ -129,8 +137,7 @@ class App extends Component {
         <header>
             <div className='wrapper'>
               <h1>Pokecard</h1>
-              <a href='#' onClick={this.logOut}>Log out</a>
-              
+              <button onClick={this.logOut}>Log out</button>
             </div>
         </header>
         <div className='container'>

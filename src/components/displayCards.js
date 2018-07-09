@@ -15,7 +15,7 @@ class DisplayCards extends Component {
                     <li key={item.id}>
                       <h3>{item.trainer}</h3>
                       <p>trains: {item.pokemon}</p>
-                      <img src={item.imageURL} />
+                      <img src={item.imageURL} alt=""/>
                       <button onClick={() => this.props.removeItems(item.id)}>Remove Item</button>
                     </li>
                     )
