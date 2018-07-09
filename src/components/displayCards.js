@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import '../styles/DisplayCards.css'
 
 class DisplayCards extends Component {
 
@@ -14,12 +15,12 @@ class DisplayCards extends Component {
                     <li key={item.id}>
                       <h3>{item.trainer}</h3>
                       <p>trains: {item.pokemon}</p>
+                      <img src={item.imageURL} />
                       <button onClick={() => this.props.removeItems(item.id)}>Remove Item</button>
                     </li>
                     )
                 })}
               </ul>
-              
             </div>
         );
     }
