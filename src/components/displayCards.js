@@ -8,7 +8,7 @@ class DisplayCards extends Component {
     }
     render() {
         return (
-            <div className='wrapper'>
+            <div className='cards'>
               <ul>
                 {this.props.cards.map((item) => {
                   return (

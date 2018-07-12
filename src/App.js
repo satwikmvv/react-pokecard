@@ -12,8 +12,7 @@ class App extends Component {
       pokemon: '',
       imageURL:'',
       UID: '',
-      file:null,
-      imageID: null,
+      file: null,
       items:[]
     }
     this.handleChange = this.handleChange.bind(this);
@@ -28,36 +27,19 @@ class App extends Component {
   handleSubmit(e) {
     e.preventDefault();
     const itemsRef = firebase.database().ref(`items/${this.state.UID}`);
-    
-    const storageRef= firebase.storage().ref(`images/${this.state.UID}/${this.state.imageID}`);
-    var refthis=this
-    var refimageID=this.state.imageID
-    storageRef.put(this.state.file).then(function() {
-      console.log('Uploaded a blob or file!');
-      const storagereference=firebase.storage().ref(`images`)
-      storagereference.child(`/${refthis.state.UID}/${refimageID}`).getDownloadURL().then((url)=>{
-        console.log(url)
-        refthis.setState({
-          imageURL:url
-        })
-      }).catch((error)=>{
-        console.log(error)
-      })
-    })
     const item = {
       trainer: this.state.trainer,
       pokemon: this.state.pokemon,
       imageURL: this.state.imageURL
     }
-    setTimeout(()=>{itemsRef.push(item)},3000)
+    console.log(e);
     itemsRef.push(item);
     this.setState({
       trainer: '',
       pokemon: '',
-      imageURL: '',
-      file:null,
-      imageID:null
+      imageURL: ''
     });
+    document.getElementById("file-upload").value=null
   }
 
 
@@ -73,10 +55,22 @@ class App extends Component {
   }
 
   changePicture(e) {
-    this.setState ({
-      imageID: e.target.files[0].lastModified,
-      file:e.target.files[0]
+    var file= e.target.files[0];
+    const storageRef= firebase.storage().ref(`images/${this.state.UID}/${file.lastModified}`);
+    console.log(file);
+    var refthis=this
+    storageRef.put(file).then(function(snapshot) {
+      let rand= snapshot;
+      console.log(rand,'Uploaded a blob or file!');
+      const storagereference=firebase.storage().ref(`images`)
+      storagereference.child(`/${refthis.state.UID}/${file.lastModified}`).getDownloadURL().then((url)=>{
+        console.log(url)
+        refthis.setState({
+          imageURL:url
+        })
+      })
     })
+    
   }
 
   componentDidMount() {
@@ -145,7 +139,7 @@ class App extends Component {
               <form onSubmit={this.handleSubmit}>
                 <input type="text" name="trainer" placeholder="trainer name?" onChange={this.handleChange} value={this.state.trainer}/>
                 <input type="text" name="pokemon" placeholder="Pokemon?" onChange={this.handleChange} value={this.state.pokemon}/>
-                <input type="file" onChange= {this.changePicture}/>
+                <input type="file" id="file-upload" onChange= {this.changePicture}/>
                 <button>Add Card</button>
               </form>
           </section>
