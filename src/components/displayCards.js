@@ -2,10 +2,7 @@ import React, { Component } from 'react';
 import '../styles/DisplayCards.css'
 
 class DisplayCards extends Component {
-
-    componentDidUpdate(){
-        // console.log(this.props)
-    }
+    
     render() {
         return (
             <div className='cards'>
